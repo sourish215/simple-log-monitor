@@ -21,15 +21,18 @@ class TailFollow {
       crlfDelay: Infinity,
     });
 
-    const lines = [];
+    let lines = [];
     for await (const line of rl) {
       lines.push(line);
-      if (lines.length > this.options.initialLines) {
-        lines.shift();
-      }
     }
 
-    lines.forEach((line) => this.ws.send(line));
+    // show initial lines according to options
+    if (lines.length > this.options.initialLines) {
+      lines = lines.slice(-this.options.initialLines);
+    }
+
+    // remove new line character
+    lines.filter((line) => line.trim()).forEach((line) => this.ws.send(line));
 
     this.currentPosition = (await fs.promises.stat(this.filePath)).size;
   }
@@ -64,7 +67,7 @@ class TailFollow {
               return reject(err);
             }
 
-            resolve(buffer.toString("utf8", 0, bytesRead));
+            resolve(buffer.toString("utf8", 0, bytesRead).trim());
           }
         );
       });

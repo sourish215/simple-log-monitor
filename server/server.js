@@ -22,7 +22,7 @@ wss.on("connection", (ws) => {
     if (command == "pause") {
       tailFollow.stop();
     } else if (command == "resume") {
-      tailFollow.start();
+      tailFollow.watch();
     }
   });
 
