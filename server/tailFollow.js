@@ -74,9 +74,25 @@ class TailFollow {
   async watch() {
     this.isWatching = true;
 
+    // Dynamic polling settings
+    const minInterval = 100; // Minimum 100ms
+    const maxInterval = 5000; // Maximum 5s
+    const defaultInterval = this.options.pollingInterval;
+    let currentInterval = defaultInterval;
+
+    // Update frequency tracking
+    const updateWindow = 10000; // 10 second window
+    const updates = [];
+
     while (this.isWatching) {
       try {
+        const currentTime = Date.now();
         const size = (await fs.promises.stat(this.filePath)).size;
+
+        // Clean old updates outside window
+        while (updates.length > 0 && updates[0] < currentTime - updateWindow) {
+          updates.shift();
+        }
 
         if (size < this.currentPosition) {
           this.currentPosition = 0;
@@ -86,13 +102,26 @@ class TailFollow {
           const newContent = await this.readNewContent(size);
           this.ws.send(newContent);
           this.currentPosition = size;
+          updates.push(currentTime);
         }
 
-        await new Promise((resolve) =>
-          setTimeout(resolve, this.options.pollingInterval)
-        );
+        // Adjust polling interval based on update frequency
+        const updateRate = updates.length / (updateWindow / 1000); // updates per second
+
+        if (updateRate > 2) {
+          // More than 2 updates per second
+          currentInterval = Math.max(currentInterval * 0.5, minInterval);
+        } else if (updateRate < 0.2) {
+          // Less than 1 update per 5 seconds
+          currentInterval = Math.min(currentInterval * 1.5, maxInterval);
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, currentInterval));
       } catch (e) {
         console.log(`Error while watching file: ${e.message}`);
+        // Reset interval on error
+        currentInterval = defaultInterval;
+        await new Promise((resolve) => setTimeout(resolve, currentInterval));
       }
     }
   }
