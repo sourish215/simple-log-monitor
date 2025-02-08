@@ -26,13 +26,14 @@ class TailFollow {
       lines.push(line);
     }
 
-    // show initial lines according to options
+    // remove new line character show initial lines according to options
     if (lines.length > this.options.initialLines) {
-      lines = lines.slice(-this.options.initialLines);
+      lines = lines
+        .filter((line) => line.trim())
+        .slice(-this.options.initialLines);
     }
 
-    // remove new line character
-    lines.filter((line) => line.trim()).forEach((line) => this.ws.send(line));
+    lines.forEach((line) => this.ws.send(line));
 
     this.currentPosition = (await fs.promises.stat(this.filePath)).size;
   }
