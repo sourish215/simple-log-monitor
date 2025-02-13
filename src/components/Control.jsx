@@ -11,7 +11,13 @@ function Control({ isPaused, onPauseToggle, autoScroll, onAutoScrollToggle }) {
       >
         <span className="size-4 translate-x-1 rounded-full bg-white transition group-data-[checked]:translate-x-6" />
       </Switch>
-      <span>Auto-scroll</span>
+      {/* <input
+        type="checkbox"
+        checked={autoScroll}
+        onChange={(e) => onAutoScrollToggle(e.target.checked)}
+        className="cursor-pointer h-5 w-5 rounded border-gray-300 text-black focus:ring-black accent-black"
+      /> */}
+      <label htmlFor="autoScroll">Auto-scroll</label>
       <Button
         className={
           "cursor-pointer rounded ml-4 py-2 px-4 text-sm text-white w-24 " +

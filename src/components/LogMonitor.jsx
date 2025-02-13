@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Control from "./Control";
 import Logs from "./Logs";
-import useWebSocket from "react-use-websocket";
+// import useWebSocket from "react-use-websocket";
+import useWebSocket from "../hooks/useWebSocket";
 
 function LogMonitor() {
   const [logs, setLogs] = useState([]);
@@ -23,7 +24,8 @@ function LogMonitor() {
 
   useEffect(() => {
     if (lastMessage != null) {
-      setLogs((prev) => [...prev, lastMessage.data]);
+      // setLogs((prev) => [...prev, lastMessage.data]);
+      setLogs([...lastMessage]);
     }
   }, [lastMessage]);
 
